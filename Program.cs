@@ -12,7 +12,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+// HTTPS redirection removed: inside Kubernetes the container serves plain HTTP
+// and TLS is terminated at the Ingress (see KAN-11).
 
 var summaries = new[]
 {
