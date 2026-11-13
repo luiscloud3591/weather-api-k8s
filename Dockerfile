@@ -1,13 +1,16 @@
 # ---- Build stage: SDK image compiles and publishes the app ----
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+# Runs on the builder's native platform and cross-compiles for the target
+# architecture (amd64 or arm64), so multi-arch builds need no CPU emulation.
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG TARGETARCH
 WORKDIR /src
 
 # Restore first (cached layer while the .csproj does not change)
 COPY WeatherApi.csproj .
-RUN dotnet restore
+RUN dotnet restore -a $TARGETARCH
 
 COPY . .
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet publish -c Release -a $TARGETARCH -o /app/publish --no-restore
 
 # ---- Runtime stage: smaller ASP.NET runtime image, no SDK ----
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
