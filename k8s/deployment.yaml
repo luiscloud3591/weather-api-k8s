@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-api
+  namespace: weather-api
+  labels:
+    app: weather-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: weather-api
+  template:
+    metadata:
+      labels:
+        app: weather-api
+    spec:
+      containers:
+        - name: weather-api
+          # Image built and pushed by the CI pipeline (KAN-7), pinned to the commit SHA
+          image: ghcr.io/luiscloud3591/weather-api-k8s:ea65eaf9327feea44a431fe62e152fa5c4eec030
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080

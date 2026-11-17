@@ -7,6 +7,11 @@ name: build-and-push
 on:
   push:
     branches: [main]
+    # Kubernetes manifests and docs do not change the image, so they do not
+    # trigger a new build (added during KAN-8).
+    paths-ignore:
+      - "k8s/**"
+      - "**.md"
   workflow_dispatch:
 
 permissions:
