@@ -20,9 +20,24 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
+// KAN-9: configuration comes from the environment (ConfigMap / Secret in Kubernetes).
+// Environment variables use "__" as separator, e.g. Forecast__Days -> Forecast:Days.
+var forecastDays = app.Configuration.GetValue("Forecast:Days", 5);
+var environmentName = app.Configuration.GetValue("App:EnvironmentName", "local");
+var apiKeyConfigured = !string.IsNullOrEmpty(app.Configuration["Api:Key"]);
+
+// Shows which configuration the pod is running with. The secret value itself is never returned.
+app.MapGet("/info", () => new
+{
+    environment = environmentName,
+    forecastDays,
+    apiKeyConfigured
+})
+.WithName("GetInfo");
+
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast =  Enumerable.Range(1, forecastDays).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
