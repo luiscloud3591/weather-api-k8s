@@ -4,7 +4,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// KAN-10: health checks used by the Kubernetes liveness and readiness probes
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
+
+// Liveness: the process is up and able to answer (runs no dependency checks).
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = _ => false
+});
+
+// Readiness: the app is ready to receive traffic (runs all registered checks).
+app.MapHealthChecks("/health/ready");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
