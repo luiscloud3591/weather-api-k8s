@@ -18,7 +18,7 @@ spec:
       containers:
         - name: weather-api
           # Image built and pushed by the CI pipeline (KAN-7), pinned to the commit SHA
-          image: ghcr.io/luiscloud3591/weather-api-k8s:465a8d5115c8a1383e2fc2b836ee6fb60b53c461
+          image: ghcr.io/luiscloud3591/weather-api-k8s:da13330512b9db9fe6720c60327900b2f0febbe3
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -29,3 +29,19 @@ spec:
                 name: weather-api-config
             - secretRef:
                 name: weather-api-secret
+          # KAN-10: Kubernetes restarts the container if liveness fails,
+          # and only sends traffic to it while readiness succeeds.
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            failureThreshold: 3
