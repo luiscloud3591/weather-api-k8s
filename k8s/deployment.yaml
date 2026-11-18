@@ -18,8 +18,14 @@ spec:
       containers:
         - name: weather-api
           # Image built and pushed by the CI pipeline (KAN-7), pinned to the commit SHA
-          image: ghcr.io/luiscloud3591/weather-api-k8s:ea65eaf9327feea44a431fe62e152fa5c4eec030
+          image: ghcr.io/luiscloud3591/weather-api-k8s:465a8d5115c8a1383e2fc2b836ee6fb60b53c461
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8080
+          # KAN-9: configuration from the ConfigMap, sensitive values from the Secret
+          envFrom:
+            - configMapRef:
+                name: weather-api-config
+            - secretRef:
+                name: weather-api-secret
