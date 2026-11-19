@@ -6,7 +6,9 @@ metadata:
   labels:
     app: weather-api
 spec:
-  replicas: 2
+  # replicas is intentionally not set: the HorizontalPodAutoscaler (k8s/hpa.yaml)
+  # owns the replica count (min 2, max 5). Setting it here would reset the
+  # count on every `kubectl apply` and fight the HPA during load (KAN-13).
   selector:
     matchLabels:
       app: weather-api

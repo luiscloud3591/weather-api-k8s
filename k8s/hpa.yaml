@@ -1,0 +1,23 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: weather-api
+  namespace: weather-api
+  labels:
+    app: weather-api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: weather-api
+  # KAN-13: keep 2 pods for availability, allow up to 5 under load
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          # Percentage of the CPU request (100m, set in KAN-12): scale out above ~50m per pod
+          type: Utilization
+          averageUtilization: 50
