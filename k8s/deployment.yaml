@@ -29,6 +29,15 @@ spec:
                 name: weather-api-config
             - secretRef:
                 name: weather-api-secret
+          # KAN-12: requests reserve capacity for scheduling (and are the base for the
+          # HPA CPU percentage); limits cap what one pod can consume.
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
           # KAN-10: Kubernetes restarts the container if liveness fails,
           # and only sends traffic to it while readiness succeeds.
           livenessProbe:
