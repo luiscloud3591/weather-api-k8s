@@ -1,0 +1,43 @@
+# KAN-14: simple in-cluster load generator used to validate the HPA (KAN-13).
+# It is NOT part of the application, so it lives outside k8s/ and is not applied
+# by `kubectl apply -f k8s/`.
+#
+# Start:  kubectl -n weather-api apply -f loadtest/load-generator.yaml
+# Watch:  kubectl -n weather-api get hpa -w
+# Stop:   kubectl -n weather-api delete -f loadtest/load-generator.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  namespace: weather-api
+  labels:
+    app: load-generator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: load-generator
+  template:
+    metadata:
+      labels:
+        app: load-generator
+    spec:
+      containers:
+        - name: load
+          image: busybox:1.36
+          # 20 parallel loops calling the API through its Service
+          command:
+            - /bin/sh
+            - -c
+            - |
+              for i in $(seq 1 20); do
+                (while true; do wget -q -O /dev/null http://weather-api.weather-api.svc/weatherforecast; done) &
+              done
+              wait
+          resources:
+            requests:
+              cpu: 100m
+              memory: 32Mi
+            limits:
+              cpu: "1"
+              memory: 64Mi

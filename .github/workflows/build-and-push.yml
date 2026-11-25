@@ -11,6 +11,7 @@ on:
     # trigger a new build (added during KAN-8).
     paths-ignore:
       - "k8s/**"
+      - "loadtest/**"
       - "**.md"
   workflow_dispatch:
 
